@@ -136,7 +136,7 @@ class TwitterSearch(object):
             # Tweet date
             date_span = li.find("span", class_="_timestamp")
             if date_span is not None:
-                tweet['created_at'] = float(date_span['data-time-ms'])
+                tweet['created_at'] = date_span['data-time']
 
             # Tweet Retweets
             retweet_span = li.select("span.ProfileTweet-action--retweet > span.ProfileTweet-actionCount")
@@ -204,9 +204,7 @@ class TwitterSearchImpl(TwitterSearch):
             self.counter += 1
 
             if tweet['created_at'] is not None:
-                t = datetime.datetime.fromtimestamp((tweet['created_at']/1000))
-                fmt = "%Y-%m-%d %H:%M:%S"
-                log.info("%i [%s] - %s" % (self.counter, t.strftime(fmt), tweet['text']))
+                log.info("%i [%s] - %s" % (self.counter, tweet['created_at'], tweet['text']))
 
             # When we've reached our max limit, return False so collection stops
             if self.max_tweets is not None and self.counter >= self.max_tweets:
@@ -249,9 +247,7 @@ class TwitterSlicer(TwitterSearch):
             # Lets add a counter so we only collect a max number of tweets
             self.counter += 1
             if tweet['created_at'] is not None:
-                t = datetime.datetime.fromtimestamp((tweet['created_at']/1000))
-                fmt = "%Y-%m-%d %H:%M:%S"
-                log.info("%i [%s] - %s" % (self.counter, t.strftime(fmt), tweet['text']))
+                log.info("%i:[%s, %s], [%s] - %s" % (self.counter, tweet['favorites'], tweet['retweets'], tweet['created_at'], tweet['text']))
 
         return True
 
@@ -259,17 +255,19 @@ class TwitterSlicer(TwitterSearch):
 if __name__ == '__main__':
     log.basicConfig(level=log.INFO)
 
-    search_query = "Babylon 5"
+    search_query = "bitcoin"
     rate_delay_seconds = 0
     error_delay_seconds = 5
 
+    '''
     # Example of using TwitterSearch
     twit = TwitterSearchImpl(rate_delay_seconds, error_delay_seconds, None)
     twit.search(search_query)
-
+    '''
+    
     # Example of using TwitterSlice
-    select_tweets_since = datetime.datetime.strptime("2016-10-01", '%Y-%m-%d')
-    select_tweets_until = datetime.datetime.strptime("2016-12-01", '%Y-%m-%d')
+    select_tweets_since = datetime.datetime.strptime("2018-05-02", '%Y-%m-%d')
+    select_tweets_until = datetime.datetime.strptime("2018-05-03", '%Y-%m-%d')
     threads = 10
 
     twitSlice = TwitterSlicer(rate_delay_seconds, error_delay_seconds, select_tweets_since, select_tweets_until,
