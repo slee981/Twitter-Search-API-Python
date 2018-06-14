@@ -4,6 +4,7 @@ import datetime
 import logging as log
 from time import sleep
 from concurrent.futures import ThreadPoolExecutor
+import pandas as pd
 
 try:
     from urllib.parse import urlparse, urlencode, urlunparse
@@ -31,6 +32,7 @@ class TwitterSearch(object):
         """
         self.rate_delay = rate_delay
         self.error_delay = error_delay
+        self.df = pd.DataFrame(columns=["Date", "TweetId", "Text", "Retweets", "Favorites"])
 
     def search(self, query):
         self.perform_search(query)
@@ -136,7 +138,7 @@ class TwitterSearch(object):
             # Tweet date
             date_span = li.find("span", class_="_timestamp")
             if date_span is not None:
-                tweet['created_at'] = date_span['data-time']
+                tweet['created_at'] = float(date_span['data-time-ms'])
 
             # Tweet Retweets
             retweet_span = li.select("span.ProfileTweet-action--retweet > span.ProfileTweet-actionCount")
@@ -196,15 +198,18 @@ class TwitterSearchImpl(TwitterSearch):
 
     def save_tweets(self, tweets):
         """
-        Just prints out tweets
+        Print to terminal and save to pandas dataframe
         :return:
         """
+
         for tweet in tweets:
             # Lets add a counter so we only collect a max number of tweets
             self.counter += 1
 
             if tweet['created_at'] is not None:
-                log.info("%i [%s] - %s" % (self.counter, tweet['created_at'], tweet['text']))
+                t = datetime.datetime.fromtimestamp((tweet['created_at']/1000))
+                fmt = "%Y-%m-%d %H:%M:%S"
+                log.info("%i [%s] - %s" % (self.counter, t.strftime(fmt), tweet['text']))
 
             # When we've reached our max limit, return False so collection stops
             if self.max_tweets is not None and self.counter >= self.max_tweets:
@@ -243,11 +248,15 @@ class TwitterSlicer(TwitterSearch):
         Just prints out tweets
         :return: True always
         """
+
         for tweet in tweets:
             # Lets add a counter so we only collect a max number of tweets
             self.counter += 1
             if tweet['created_at'] is not None:
-                log.info("%i:[%s, %s], [%s] - %s" % (self.counter, tweet['favorites'], tweet['retweets'], tweet['created_at'], tweet['text']))
+                t = datetime.datetime.fromtimestamp((tweet['created_at']/1000))
+                fmt = "%Y-%m-%d %H:%M:%S"
+                self.df.loc[self.counter] = [t.strftime(fmt), tweet["tweet_id"], tweet["text"], tweet["retweets"], tweet["favorites"]]
+                log.info("%i,%i [%s] - %s" % (self.df.shape[0], self.counter, t.strftime(fmt), tweet['text']))
 
         return True
 
@@ -264,14 +273,13 @@ if __name__ == '__main__':
     twit = TwitterSearchImpl(rate_delay_seconds, error_delay_seconds, None)
     twit.search(search_query)
     '''
-    
-    # Example of using TwitterSlice
-    select_tweets_since = datetime.datetime.strptime("2018-05-02", '%Y-%m-%d')
-    select_tweets_until = datetime.datetime.strptime("2018-05-03", '%Y-%m-%d')
-    threads = 10
 
-    twitSlice = TwitterSlicer(rate_delay_seconds, error_delay_seconds, select_tweets_since, select_tweets_until,
-                              threads)
+    # Example of using TwitterSlice
+    select_tweets_since = datetime.datetime.strptime("2017-08-01", '%Y-%m-%d')
+    select_tweets_until = datetime.datetime.strptime("2018-06-01", '%Y-%m-%d')
+    threads = 1
+
+    twitSlice = TwitterSlicer(rate_delay_seconds, error_delay_seconds, select_tweets_since, select_tweets_until, threads)
     twitSlice.search(search_query)
 
     print("TwitterSearch collected %i" % twit.counter)
