@@ -1,21 +1,27 @@
 import TwitterScraper
+import mysql.connector
+from sqlalchemy import create_engine
+import logging as log
+import datetime
+import pandas as pd
 
 log.basicConfig(level=log.INFO)
+engine = create_engine('mysql+mysqlconnector://__username__:__password__@twitterdata.ckmmf3gk0i4d.us-east-2.rds.amazonaws.com:3306', echo=False)
 
+
+# set parameters
 search_query = "bitcoin"
 rate_delay_seconds = 0
 error_delay_seconds = 5
+select_tweets_since = datetime.datetime.strptime("2017-08-01", '%Y-%m-%d')
+select_tweets_until = datetime.datetime.strptime("2017-08-02", '%Y-%m-%d')
+threads = 1
 
-# Example of using TwitterSearch
-twit = TwitterSearchImpl(rate_delay_seconds, error_delay_seconds, None)
-twit.search(search_query)
-
-# Example of using TwitterSlice
-start = datetime.datetime.strptime("2018-05-02", '%Y-%m-%d')
-stop = datetime.datetime.strptime("2018-05-03", '%Y-%m-%d')
-
-twitSlice = TwitterSlicer(rate_delay_seconds, error_delay_seconds, start, stop)
+# execute
+twitSlice = TwitterScraper.TwitterSlicer(rate_delay_seconds, error_delay_seconds, select_tweets_since, select_tweets_until, threads)
 twitSlice.search(search_query)
+twitter_df = twitSlice.df
+twitter_df.to_sql(name="btcTwitter_August", con=engine, if_exists = 'append', index=False)
 
 print("TwitterSearch collected %i" % twit.counter)
 print("TwitterSlicer collected %i" % twitSlice.counter)
