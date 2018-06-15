@@ -16,8 +16,8 @@ password = config.password
 search_query = "ethereum"
 rate_delay_seconds = 0
 error_delay_seconds = 5
-select_tweets_since = datetime.datetime.strptime("2017-08-01", '%Y-%m-%d')
-select_tweets_until = datetime.datetime.strptime("2017-09-01", '%Y-%m-%d')
+select_tweets_since = datetime.datetime.strptime("2017-09-01", '%Y-%m-%d')
+select_tweets_until = datetime.datetime.strptime("2018-01-01", '%Y-%m-%d')
 threads = 1
 
 print("running search")
