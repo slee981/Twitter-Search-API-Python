@@ -12,20 +12,24 @@ log.basicConfig(level=log.INFO)
 username = config.username
 password = config.password
 
-engine = create_engine('mysql+mysqlconnector://' + username + ':' + password + '@twitterdata.ckmmf3gk0i4d.us-east-2.rds.amazonaws.com:3306/tweets', echo=False)
-
 # set parameters
-search_query = "bitcoin"
+search_query = "ethereum"
 rate_delay_seconds = 0
 error_delay_seconds = 5
 select_tweets_since = datetime.datetime.strptime("2017-08-01", '%Y-%m-%d')
-select_tweets_until = datetime.datetime.strptime("2017-08-02", '%Y-%m-%d')
+select_tweets_until = datetime.datetime.strptime("2017-09-01", '%Y-%m-%d')
 threads = 1
 
+print("running search")
 # execute
 twitSlice = TwitterScraper.TwitterSlicer(rate_delay_seconds, error_delay_seconds, select_tweets_since, select_tweets_until, threads)
 twitSlice.search(search_query)
 twitter_df = twitSlice.df
-twitter_df.to_sql(name="bitcoinTest", con=engine, if_exists = 'append', index=False)
+
+print("opening connection...")
+engine = create_engine('mysql+mysqlconnector://' + username + ':' + password + '@twitterdata.ckmmf3gk0i4d.us-east-2.rds.amazonaws.com:3306/tweets', echo=False)
+
+print("writing data...")
+twitter_df.to_sql(name="ethereum", con=engine, if_exists = 'append', index=False, chunksize=5000)
 
 print("wrote to db!")

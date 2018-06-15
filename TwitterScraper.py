@@ -256,7 +256,9 @@ class TwitterSlicer(TwitterSearch):
                 t = datetime.datetime.fromtimestamp((tweet['created_at']/1000))
                 fmt = "%Y-%m-%d %H:%M:%S"
                 self.df.loc[self.counter] = [t.strftime(fmt), tweet["tweet_id"], tweet["text"], tweet["retweets"], tweet["favorites"]]
-                log.info("%i,%i [%s] - %s" % (self.df.shape[0], self.counter, t.strftime(fmt), tweet['text']))
+
+                if self.counter % 1000 == 0:
+                    log.info("%i,%i [%s] - %s" % (self.df.shape[0], self.counter, t.strftime(fmt), tweet['text']))
 
         return True
 
