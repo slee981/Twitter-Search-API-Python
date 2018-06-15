@@ -2,12 +2,17 @@ import TwitterScraper
 import mysql.connector
 from sqlalchemy import create_engine
 import logging as log
+import config
+
 import datetime
 import pandas as pd
 
 log.basicConfig(level=log.INFO)
-engine = create_engine('mysql+mysqlconnector://__username__:__password__@twitterdata.ckmmf3gk0i4d.us-east-2.rds.amazonaws.com:3306', echo=False)
 
+username = config.username
+password = config.password
+
+engine = create_engine('mysql+mysqlconnector://' + username + ':' + password + '@twitterdata.ckmmf3gk0i4d.us-east-2.rds.amazonaws.com:3306', echo=False)
 
 # set parameters
 search_query = "bitcoin"
