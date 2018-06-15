@@ -12,7 +12,7 @@ log.basicConfig(level=log.INFO)
 username = config.username
 password = config.password
 
-engine = create_engine('mysql+mysqlconnector://' + username + ':' + password + '@twitterdata.ckmmf3gk0i4d.us-east-2.rds.amazonaws.com:3306', echo=False)
+engine = create_engine('mysql+mysqlconnector://' + username + ':' + password + '@twitterdata.ckmmf3gk0i4d.us-east-2.rds.amazonaws.com:3306/tweets', echo=False)
 
 # set parameters
 search_query = "bitcoin"
@@ -26,7 +26,6 @@ threads = 1
 twitSlice = TwitterScraper.TwitterSlicer(rate_delay_seconds, error_delay_seconds, select_tweets_since, select_tweets_until, threads)
 twitSlice.search(search_query)
 twitter_df = twitSlice.df
-twitter_df.to_sql(name="btcTwitter_August", con=engine, if_exists = 'append', index=False)
+twitter_df.to_sql(name="bitcoinTest", con=engine, if_exists = 'append', index=False)
 
-print("TwitterSearch collected %i" % twit.counter)
-print("TwitterSlicer collected %i" % twitSlice.counter)
+print("wrote to db!")
