@@ -15,7 +15,7 @@ dates = ["2017-08-01", "2017-09-01", "2017-10-01", "2017-11-01", "2017-12-01", "
 
 # set parameters
 search_query = "bitcoin"
-rate_delay_seconds = 60    # to avoid getting IP address banned
+rate_delay_seconds = 60*15    # to avoid getting IP address banned
 error_delay_seconds = 5
 threads = 1
 
@@ -35,6 +35,6 @@ for i in range(len(dates) - 1):
     engine = create_engine('mysql+mysqlconnector://' + username + ':' + password + '@twitterdata.ckmmf3gk0i4d.us-east-2.rds.amazonaws.com:3306/tweets', echo=False)
 
     print("writing data...")
-    twitter_df.to_sql(name="bitcoin", con=engine, if_exists = 'append', index=False, chunksize=5000)
+    twitter_df.to_sql(name="bitcoinSlow", con=engine, if_exists = 'append', index=False, chunksize=5000)
 
     print("wrote to db!")
