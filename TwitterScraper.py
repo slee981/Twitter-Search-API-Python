@@ -70,6 +70,7 @@ class TwitterSearch(object):
                 url = self.construct_url(query, max_position=max_position)
                 # Sleep for our rate_delay
                 sleep(self.rate_delay)
+                print("sleeping for " + str(self.rate_delay) + " s...")
                 response = self.execute_search(url)
 
     def execute_search(self, url):

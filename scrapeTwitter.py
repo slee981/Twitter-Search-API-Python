@@ -15,7 +15,7 @@ dates = ["2017-08-01", "2017-09-01", "2017-10-01", "2017-11-01", "2017-12-01", "
 
 # set parameters
 search_query = "bitcoin"
-rate_delay_seconds = 15*60    # to avoid getting IP address banned
+rate_delay_seconds = 60    # to avoid getting IP address banned
 error_delay_seconds = 5
 threads = 1
 
