@@ -19,6 +19,8 @@ rate_delay_seconds = 60*15    # to avoid getting IP address banned
 error_delay_seconds = 5
 threads = 1
 
+print("running with 15 minute delay")
+
 # pull dates at index i and i+1 to set range
 for i in range(len(dates) - 1):
     select_tweets_since = datetime.datetime.strptime(dates[i], '%Y-%m-%d')
