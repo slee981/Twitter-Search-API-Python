@@ -5,6 +5,7 @@ import logging as log
 from time import sleep
 from concurrent.futures import ThreadPoolExecutor
 import pandas as pd
+import random
 
 try:
     from urllib.parse import urlparse, urlencode, urlunparse
@@ -69,12 +70,10 @@ class TwitterSearch(object):
                     max_position = "TWEET-%s-%s" % (max_tweet['tweet_id'], min_tweet['tweet_id'])
                 url = self.construct_url(query, max_position=max_position)
 
-                # Sleep for our rate_delay every 5 querys
-                queries += 1
-                if queries % 5 == 0:
-                    queries = 0
-                    sleep(self.rate_delay)
-                    print("sleeping for " + str(self.rate_delay) + " s...")
+                # Sleep for a random number of seconds
+                t = random.randint(0, self.rate_delay)
+                sleep(t)
+                print("sleeping for " + str(t) + " s...")
 
                 response = self.execute_search(url)
 
@@ -273,7 +272,7 @@ if __name__ == '__main__':
     log.basicConfig(level=log.INFO)
 
     search_query = "bitcoin"
-    rate_delay_seconds = 0
+    rate_delay_seconds = 5
     error_delay_seconds = 5
 
     '''
