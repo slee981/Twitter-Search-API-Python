@@ -15,7 +15,7 @@ password = config.password
 dates = ["2017-08-15", "2017-08-20", "2017-08-25", "2017-09-01"]
 
 # set parameters
-search_query = "cryptocurrency"
+search_query = "crypto"
 rate_delay_seconds = 60    # to avoid getting IP address banned
 error_delay_seconds = 5
 threads = 1
