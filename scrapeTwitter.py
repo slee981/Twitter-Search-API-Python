@@ -12,10 +12,10 @@ log.basicConfig(level=log.INFO)
 
 username = config.username
 password = config.password
-dates = ["2017-08-15", "2017-09-01", "2017-10-01", "2017-11-01", "2017-12-01", "2018-01-01", "2018-02-01", "2018-03-01", "2018-04-01", "2018-05-01", "2018-06-01", "2018-07-01"]
+dates = ["2017-08-15", "2017-08-20", "2017-08-25", "2017-09-01"]
 
 # set parameters
-search_query = "ripple"
+search_query = "cryptocurrency"
 rate_delay_seconds = 60    # to avoid getting IP address banned
 error_delay_seconds = 5
 threads = 1
@@ -36,7 +36,7 @@ for i in range(len(dates) - 1):
     engine = create_engine('mysql+mysqlconnector://' + username + ':' + password + '@twitterdata.ckmmf3gk0i4d.us-east-2.rds.amazonaws.com:3306/tweets', echo=False)
 
     print("writing data...")
-    twitter_df.to_sql(name="ripple", con=engine, if_exists = 'append', index=False, chunksize=5000)
+    twitter_df.to_sql(name="crypto_aug", con=engine, if_exists = 'append', index=False, chunksize=5000)
 
     print("wrote to db!")
     sleep(60*15)
