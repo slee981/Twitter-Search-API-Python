@@ -12,7 +12,7 @@ log.basicConfig(level=log.INFO)
 
 username = config.username
 password = config.password
-dates = ["2017-09-01", "2017-09-05", "2017-09-10", "2017-09-15"]
+dates = ["2017-08-18", "2017-09-01"]
 
 # set parameters
 search_query = "crypto"
@@ -36,7 +36,7 @@ for i in range(len(dates) - 1):
     engine = create_engine('mysql+mysqlconnector://' + username + ':' + password + '@twitterdata.ckmmf3gk0i4d.us-east-2.rds.amazonaws.com:3306/tweets', echo=False)
 
     print("writing data...")
-    twitter_df.to_sql(name="crypto_sept", con=engine, if_exists = 'append', index=False, chunksize=5000)
+    twitter_df.to_sql(name="crypto_aug", con=engine, if_exists = 'append', index=False, chunksize=5000)
 
     print("wrote to db!")
     sleep(60*15)
