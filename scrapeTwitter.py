@@ -12,7 +12,7 @@ log.basicConfig(level=log.INFO)
 
 username = config.username
 password = config.password
-dates = ["2017-12-01", "2018-01-01"]
+dates = ["2017-12-20", "2018-01-01"]
 
 # set parameters
 search_query = "bitcoin"
