@@ -12,11 +12,11 @@ log.basicConfig(level=log.INFO)
 
 username = config.username
 password = config.password
-dates = ["2017-12-20", "2018-01-01"]
+dates = ["2017-12-02", "2018-01-01"]
 
 # set parameters
 search_query = "bitcoin"
-rate_delay_seconds = 60    # to avoid getting IP address banned
+rate_delay_seconds = 1    # to avoid getting IP address banned
 error_delay_seconds = 5
 threads = 1
 
@@ -39,4 +39,3 @@ for i in range(len(dates) - 1):
     twitter_df.to_sql(name="bitcoin_dec", con=engine, if_exists = 'append', index=False, chunksize=5000)
 
     print("wrote to db!")
-    sleep(60*15)

@@ -71,7 +71,7 @@ class TwitterSearch(object):
                 url = self.construct_url(query, max_position=max_position)
 
                 # Sleep for a random number of seconds
-                t = random.randint(0, self.rate_delay)
+                t = random.randint(1, self.rate_delay)
                 sleep(t)
                 print("sleeping for " + str(t) + " s...")
 
