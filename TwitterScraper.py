@@ -85,11 +85,15 @@ class TwitterSearch(object):
         """
         try:
             # Specify a user agent to prevent Twitter from returning a profile card
-            headers = {
-                'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.'
-                              '86 Safari/537.36'
-            }
-            req = requests.get(url, headers=headers)
+            headers = [
+                'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36',
+                'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/601.7.7 (KHTML, like Gecko) Version/9.1.2 Safari/601.7.7',
+                'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36',
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',
+            ]
+            headerNum = random.randint(0, len(headers))
+            header = headers[headerNum]
+            req = requests.get(url, headers={header})
             # response = urllib2.urlopen(req)
             data = json.loads(req.text)
             return data
