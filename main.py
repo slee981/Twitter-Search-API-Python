@@ -29,7 +29,7 @@ if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.realpath(__file__))
 
     args = sys.argv
-    search_query = args[1]
+    search_query = " ".join(args[1:])
 
     # start date and end date
     stop = datetime.date.today()
