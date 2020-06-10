@@ -1,5 +1,5 @@
 import TwitterScraper
-import sys
+import sys, os
 import logging as log
 from time import sleep
 import datetime
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     stop = datetime.date.today()
     start = stop - datetime.timedelta(days=7)
 
-    fname = "{}-{}.xlsx".format(search_query, stop)
+    fname = os.path.join("data", "{}-{}.xlsx".format(search_query, stop))
     print("searching for {}".format(search_query))
 
     df = main(search_query, start, stop)
