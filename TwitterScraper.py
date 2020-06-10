@@ -1,25 +1,17 @@
 from __future__ import print_function
 import json
 import datetime
+import random
 import logging as log
 from time import sleep
-from concurrent.futures import ThreadPoolExecutor
-import pandas as pd
-import random
-
-try:
-    from urllib.parse import urlparse, urlencode, urlunparse
-except ImportError:
-    # Python 2 imports
-    from urlparse import urlparse, urlunparse
-    from urllib import urlencode
-
-import requests
 from abc import ABCMeta
 from abc import abstractmethod
-from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor
+from urllib.parse import urlparse, urlencode, urlunparse
 
-__author__ = 'Tom Dickinson'
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 
 
 class TwitterSearch(object):
@@ -33,7 +25,9 @@ class TwitterSearch(object):
         """
         self.rate_delay = rate_delay
         self.error_delay = error_delay
-        self.df = pd.DataFrame(columns=["Date", "TweetId", "Text", "Retweets", "Favorites"])
+        self.df = pd.DataFrame(
+            columns=["Date", "TweetId", "Text", "Retweets", "Favorites"]
+        )
 
     def search(self, query):
         self.perform_search(query)
@@ -48,8 +42,12 @@ class TwitterSearch(object):
         continue_search = True
         min_tweet = None
         response = self.execute_search(url)
-        while response is not None and continue_search and response['items_html'] is not None:
-            tweets = self.parse_tweets(response['items_html'])
+        while (
+            response is not None
+            and continue_search
+            and response["items_html"] is not None
+        ):
+            tweets = self.parse_tweets(response["items_html"])
 
             # If we have no tweets, then we can break the loop early
             if len(tweets) == 0:
@@ -63,18 +61,15 @@ class TwitterSearch(object):
 
             # Our max tweet is the last tweet in the list
             max_tweet = tweets[-1]
-            if min_tweet['tweet_id'] is not max_tweet['tweet_id']:
+            if min_tweet["tweet_id"] is not max_tweet["tweet_id"]:
                 if "min_position" in response.keys():
-                    max_position = response['min_position']
+                    max_position = response["min_position"]
                 else:
-                    max_position = "TWEET-%s-%s" % (max_tweet['tweet_id'], min_tweet['tweet_id'])
+                    max_position = "TWEET-%s-%s" % (
+                        max_tweet["tweet_id"],
+                        min_tweet["tweet_id"],
+                    )
                 url = self.construct_url(query, max_position=max_position)
-
-                # Sleep for a random number of seconds
-                t = random.randint(1, self.rate_delay)
-                sleep(t)
-                print("sleeping for " + str(t) + " s...")
-
                 response = self.execute_search(url)
 
     def execute_search(self, url):
@@ -86,8 +81,8 @@ class TwitterSearch(object):
         try:
             # Specify a user agent to prevent Twitter from returning a profile card
             headers = {
-                'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.'
-                              '86 Safari/537.36'
+                "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490."
+                "86 Safari/537.36"
             }
             req = requests.get(url, headers=headers)
             # response = urllib2.urlopen(req)
@@ -111,49 +106,53 @@ class TwitterSearch(object):
         """
         soup = BeautifulSoup(items_html, "html.parser")
         tweets = []
-        for li in soup.find_all("li", class_='js-stream-item'):
+        for li in soup.find_all("li", class_="js-stream-item"):
 
             # If our li doesn't have a tweet-id, we skip it as it's not going to be a tweet.
-            if 'data-item-id' not in li.attrs:
+            if "data-item-id" not in li.attrs:
                 continue
 
             tweet = {
-                'tweet_id': li['data-item-id'],
-                'text': None,
-                'user_id': None,
-                'user_screen_name': None,
-                'user_name': None,
-                'created_at': None,
-                'retweets': 0,
-                'favorites': 0
+                "tweet_id": li["data-item-id"],
+                "text": None,
+                "user_id": None,
+                "user_screen_name": None,
+                "user_name": None,
+                "created_at": None,
+                "retweets": 0,
+                "favorites": 0,
             }
 
             # Tweet Text
             text_p = li.find("p", class_="tweet-text")
             if text_p is not None:
-                tweet['text'] = text_p.get_text()
+                tweet["text"] = text_p.get_text()
 
             # Tweet User ID, User Screen Name, User Name
             user_details_div = li.find("div", class_="tweet")
             if user_details_div is not None:
-                tweet['user_id'] = user_details_div['data-user-id']
-                tweet['user_screen_name'] = user_details_div['data-user-id']
-                tweet['user_name'] = user_details_div['data-name']
+                tweet["user_id"] = user_details_div["data-user-id"]
+                tweet["user_screen_name"] = user_details_div["data-user-id"]
+                tweet["user_name"] = user_details_div["data-name"]
 
             # Tweet date
             date_span = li.find("span", class_="_timestamp")
             if date_span is not None:
-                tweet['created_at'] = float(date_span['data-time-ms'])
+                tweet["created_at"] = float(date_span["data-time-ms"])
 
             # Tweet Retweets
-            retweet_span = li.select("span.ProfileTweet-action--retweet > span.ProfileTweet-actionCount")
+            retweet_span = li.select(
+                "span.ProfileTweet-action--retweet > span.ProfileTweet-actionCount"
+            )
             if retweet_span is not None and len(retweet_span) > 0:
-                tweet['retweets'] = int(retweet_span[0]['data-tweet-stat-count'])
+                tweet["retweets"] = int(retweet_span[0]["data-tweet-stat-count"])
 
             # Tweet Favourites
-            favorite_span = li.select("span.ProfileTweet-action--favorite > span.ProfileTweet-actionCount")
+            favorite_span = li.select(
+                "span.ProfileTweet-action--favorite > span.ProfileTweet-actionCount"
+            )
             if favorite_span is not None and len(retweet_span) > 0:
-                tweet['favorites'] = int(favorite_span[0]['data-tweet-stat-count'])
+                tweet["favorites"] = int(favorite_span[0]["data-tweet-stat-count"])
 
             tweets.append(tweet)
         return tweets
@@ -169,16 +168,23 @@ class TwitterSearch(object):
 
         params = {
             # Type Param
-            'f': 'tweets',
+            "f": "tweets",
             # Query Param
-            'q': query
+            "q": query,
         }
 
         # If our max_position param is not None, we add it to the parameters
         if max_position is not None:
-            params['max_position'] = max_position
+            params["max_position"] = max_position
 
-        url_tupple = ('https', 'twitter.com', '/i/search/timeline', '', urlencode(params), '')
+        url_tupple = (
+            "https",
+            "twitter.com",
+            "/i/search/timeline",
+            "",
+            urlencode(params),
+            "",
+        )
         return urlunparse(url_tupple)
 
     @abstractmethod
@@ -190,7 +196,6 @@ class TwitterSearch(object):
 
 
 class TwitterSearchImpl(TwitterSearch):
-
     def __init__(self, rate_delay, error_delay, max_tweets):
         """
         :param rate_delay: How long to pause between calls to Twitter
@@ -211,10 +216,12 @@ class TwitterSearchImpl(TwitterSearch):
             # Lets add a counter so we only collect a max number of tweets
             self.counter += 1
 
-            if tweet['created_at'] is not None:
-                t = datetime.datetime.fromtimestamp((tweet['created_at']/1000))
+            if tweet["created_at"] is not None:
+                t = datetime.datetime.fromtimestamp((tweet["created_at"] / 1000))
                 fmt = "%Y-%m-%d %H:%M:%S"
-                log.info("%i [%s] - %s" % (self.counter, t.strftime(fmt), tweet['text']))
+                log.info(
+                    "%i [%s] - %s" % (self.counter, t.strftime(fmt), tweet["text"])
+                )
 
             # When we've reached our max limit, return False so collection stops
             if self.max_tweets is not None and self.counter >= self.max_tweets:
@@ -230,6 +237,7 @@ class TwitterSlicer(TwitterSearch):
     The only additional parameters a user has to input, is a minimum date, and a maximum date.
     This method also supports parallel scraping.
     """
+
     def __init__(self, rate_delay, error_delay, since, until, n_threads=1):
         super(TwitterSlicer, self).__init__(rate_delay, error_delay)
         self.since = since
@@ -243,8 +251,11 @@ class TwitterSlicer(TwitterSearch):
         for i in range(0, n_days):
             since_query = self.since + datetime.timedelta(days=i)
             until_query = self.since + datetime.timedelta(days=(i + 1))
-            day_query = "%s since:%s until:%s" % (query, since_query.strftime("%Y-%m-%d"),
-                                                  until_query.strftime("%Y-%m-%d"))
+            day_query = "%s since:%s until:%s" % (
+                query,
+                since_query.strftime("%Y-%m-%d"),
+                until_query.strftime("%Y-%m-%d"),
+            )
             tp.submit(self.perform_search, day_query)
         tp.shutdown(wait=True)
 
@@ -257,36 +268,54 @@ class TwitterSlicer(TwitterSearch):
         for tweet in tweets:
             # Lets add a counter so we only collect a max number of tweets
             self.counter += 1
-            if tweet['created_at'] is not None:
-                t = datetime.datetime.fromtimestamp((tweet['created_at']/1000))
+            if tweet["created_at"] is not None:
+                t = datetime.datetime.fromtimestamp((tweet["created_at"] / 1000))
                 fmt = "%Y-%m-%d %H:%M:%S"
-                self.df.loc[self.counter] = [t.strftime(fmt), tweet["tweet_id"], tweet["text"], tweet["retweets"], tweet["favorites"]]
+                self.df.loc[self.counter] = [
+                    t.strftime(fmt),
+                    tweet["tweet_id"],
+                    tweet["text"],
+                    tweet["retweets"],
+                    tweet["favorites"],
+                ]
 
                 if self.counter % 1000 == 0:
-                    log.info("%i,%i [%s] - %s" % (self.df.shape[0], self.counter, t.strftime(fmt), tweet['text']))
+                    log.info(
+                        "%i,%i [%s] - %s"
+                        % (
+                            self.df.shape[0],
+                            self.counter,
+                            t.strftime(fmt),
+                            tweet["text"],
+                        )
+                    )
 
         return True
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     log.basicConfig(level=log.INFO)
 
     search_query = "bitcoin"
     rate_delay_seconds = 5
     error_delay_seconds = 5
 
-    '''
     # Example of using TwitterSearch
     twit = TwitterSearchImpl(rate_delay_seconds, error_delay_seconds, None)
     twit.search(search_query)
-    '''
 
     # Example of using TwitterSlice
-    select_tweets_since = datetime.datetime.strptime("2017-08-01", '%Y-%m-%d')
-    select_tweets_until = datetime.datetime.strptime("2018-06-01", '%Y-%m-%d')
+    select_tweets_since = datetime.datetime.strptime("2017-08-01", "%Y-%m-%d")
+    select_tweets_until = datetime.datetime.strptime("2018-06-01", "%Y-%m-%d")
     threads = 1
 
-    twitSlice = TwitterSlicer(rate_delay_seconds, error_delay_seconds, select_tweets_since, select_tweets_until, threads)
+    twitSlice = TwitterSlicer(
+        rate_delay_seconds,
+        error_delay_seconds,
+        select_tweets_since,
+        select_tweets_until,
+        threads,
+    )
     twitSlice.search(search_query)
 
     print("TwitterSearch collected %i" % twit.counter)
