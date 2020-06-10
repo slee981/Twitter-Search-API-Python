@@ -26,7 +26,7 @@ class TwitterSearch(object):
         self.rate_delay = rate_delay
         self.error_delay = error_delay
         self.df = pd.DataFrame(
-            columns=["Date", "TweetId", "Text", "Retweets", "Favorites"]
+            columns=["Date", "UserID", "UserName", "Text", "Retweets", "Favorites",]
         )
 
     def search(self, query):
@@ -85,7 +85,7 @@ class TwitterSearch(object):
                 "86 Safari/537.36"
             }
             req = requests.get(url, headers=headers)
-            # response = urllib2.urlopen(req)
+
             data = json.loads(req.text)
             return data
 
@@ -273,7 +273,8 @@ class TwitterSlicer(TwitterSearch):
                 fmt = "%Y-%m-%d %H:%M:%S"
                 self.df.loc[self.counter] = [
                     t.strftime(fmt),
-                    tweet["tweet_id"],
+                    tweet["user_id"],
+                    tweet["user_name"],
                     tweet["text"],
                     tweet["retweets"],
                     tweet["favorites"],

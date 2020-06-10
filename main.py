@@ -5,12 +5,8 @@ from time import sleep
 import datetime
 
 
-def main(search_query):
+def main(search_query, start, stop):
     log.basicConfig(level=log.INFO)
-
-    # start date and end date
-    stop = datetime.date.today()
-    start = stop - datetime.timedelta(days=7)
 
     print("searching between {} and {}".format(start, stop))
 
@@ -32,6 +28,13 @@ def main(search_query):
 if __name__ == "__main__":
     args = sys.argv
     search_query = args[1]
+
+    # start date and end date
+    stop = datetime.date.today()
+    start = stop - datetime.timedelta(days=7)
+
+    fname = "{}-{}.xlsx".format(search_query, stop)
     print("searching for {}".format(search_query))
-    df = main(search_query)
-    df.to_csv("test.csv")
+
+    df = main(search_query, start, stop)
+    df.to_excel(fname)
