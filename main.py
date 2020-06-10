@@ -26,6 +26,8 @@ def main(search_query, start, stop):
 
 
 if __name__ == "__main__":
+    base_dir = os.path.dirname(os.path.realpath(__file__))
+
     args = sys.argv
     search_query = args[1]
 
@@ -33,7 +35,7 @@ if __name__ == "__main__":
     stop = datetime.date.today()
     start = stop - datetime.timedelta(days=7)
 
-    fname = os.path.join("data", "{}-{}.xlsx".format(search_query, stop))
+    fname = os.path.join(base_dir, "data", "{}-{}.xlsx".format(search_query, stop))
     print("searching for {}".format(search_query))
 
     df = main(search_query, start, stop)
